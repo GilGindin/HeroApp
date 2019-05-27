@@ -2,7 +2,7 @@ package com.gil.heroapp;
 
 import com.google.gson.annotations.SerializedName;
 
-
+import java.util.ArrayList;
 
 public class Item {
 
@@ -11,12 +11,14 @@ public class Item {
     private String title;
 
     @SerializedName("abilities")
-    private int[] abilitiesObj;
+    private ArrayList<String> abilitiesObj;
 
     @SerializedName("image")
     private String imageUrl;
 
-    public Item(String title, int[] abilitiesObj, String imageUrl) {
+    private Boolean isClicked = false;
+
+    public Item(String title, ArrayList<String> abilitiesObj, String imageUrl) {
         this.title = title;
         this.abilitiesObj = abilitiesObj;
         this.imageUrl = imageUrl;
@@ -34,19 +36,11 @@ public class Item {
         return imageUrl;
     }
 
-
-    public int[] getAbilitiesObj() {
+    public ArrayList<String> getAbilitiesObj() {
         return abilitiesObj;
     }
 
-    public class Abilities {
-
-        private int[] abilities;
-
-        public int[] getAbilities() {
-            return abilities;
-        }
+    public Boolean getClicked() {
+        return isClicked;
     }
-
-
 }

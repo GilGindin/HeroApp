@@ -13,6 +13,8 @@ import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import retrofit2.Call;
@@ -62,7 +64,6 @@ public class MainActivity extends AppCompatActivity implements MyHeroAdapter.OnI
                 }
                 for (Item item : response.body()) {
                     allResults = response.body();
-                    Log.d(TAG, "onResponse: --------" + response.body());
                     mTextView.setText(item.getTitle());
                     if (item.getImageUrl() != null){
                         Picasso.with(MainActivity.this).load(item.getImageUrl()).fit().into(mImageView);
@@ -75,12 +76,10 @@ public class MainActivity extends AppCompatActivity implements MyHeroAdapter.OnI
                 mMyHeroAdapter.setOnItemClickListener(MainActivity.this);
                 mMyHeroAdapter.notifyDataSetChanged();
 
-
             }
 
             @Override
             public void onFailure(Call<List<Item>> call, Throwable t) {
-
                 Toast.makeText(MainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
                 Log.d("", "onFailure:------------------- " + t.getMessage());
             }
@@ -94,16 +93,23 @@ public class MainActivity extends AppCompatActivity implements MyHeroAdapter.OnI
         String photo = clieckedItem.getImageUrl();
         String name = clieckedItem.getTitle();
 
+        swapItem(position , 0);
         updateAppHeader(photo , name);
 
-        Toast.makeText(this, "clickedddd", Toast.LENGTH_SHORT).show();
+    }
+    public void swapItem(int fromPostion , int toPosition){
+        Collections.swap(allResults , fromPostion , toPosition);
+        mMyHeroAdapter.notifyItemMoved(fromPostion , toPosition);
+        mRecyclerView.scrollToPosition(toPosition);
     }
 
-    private void updateAppHeader(String photo , String name) {
 
+
+    public void updateAppHeader(String photo, String name) {
         if (photo != null){
             Picasso.with(MainActivity.this).load(photo).fit().into(mImageView);
         }
         mTextView.setText(name);
     }
-}
+
+  }
