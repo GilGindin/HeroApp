@@ -1,5 +1,7 @@
 package com.gil.heroapp;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -23,6 +25,12 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements MyHeroAdapter.OnItemClickListener {
 
+    public static final String SHARED_PREFS = "sharedPrefs";
+    public static final String IMAGE_HEADR = "imageHeader";
+    public static final String TEXT_HEADER = "textHeader";
+    public static final String DEFAULT = "N/A";
+
+
     private static final String TAG = "MainActivity";
     private RecyclerView mRecyclerView;
     private MyHeroAdapter mMyHeroAdapter;
@@ -30,18 +38,21 @@ public class MainActivity extends AppCompatActivity implements MyHeroAdapter.OnI
     private TextView mTextView;
     private EndPointService mEndPointService;
     private List allResults;
+    private String photo;
+    private String nameText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
         initialButtons();
         createRetrofitCallback();
 
     }
+
 
     private void initialButtons() {
         mRecyclerView = findViewById(R.id.recycler_view_list_of_heroes);
@@ -50,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements MyHeroAdapter.OnI
 
         mImageView = findViewById(R.id.image_view_hero);
         mTextView = findViewById(R.id.text_view_hero_represnting);
+
     }
 
     private void createRetrofitCallback() {
@@ -65,10 +77,10 @@ public class MainActivity extends AppCompatActivity implements MyHeroAdapter.OnI
                 for (Item item : response.body()) {
                     allResults = response.body();
                     mTextView.setText(item.getTitle());
-                    if (item.getImageUrl() != null){
+                    if (item.getImageUrl() != null) {
                         Picasso.with(MainActivity.this).load(item.getImageUrl()).fit().into(mImageView);
                     }
-
+                    loadSharedPrefs();
                 }
 
                 mMyHeroAdapter = new MyHeroAdapter(MainActivity.this, allResults);
@@ -86,30 +98,55 @@ public class MainActivity extends AppCompatActivity implements MyHeroAdapter.OnI
         });
     }
 
-
     @Override
     public void onItemClick(int position) {
         Item clieckedItem = (Item) allResults.get(position);
-        String photo = clieckedItem.getImageUrl();
-        String name = clieckedItem.getTitle();
+        photo = clieckedItem.getImageUrl();
+        nameText = clieckedItem.getTitle();
 
-        swapItem(position , 0);
-        updateAppHeader(photo , name);
+        saveToSharedPrefs();
+        swapItem(position, 0);
+        updateAppHeader(photo, nameText);
 
     }
-    public void swapItem(int fromPostion , int toPosition){
-        Collections.swap(allResults , fromPostion , toPosition);
-        mMyHeroAdapter.notifyItemMoved(fromPostion , toPosition);
+
+    public void swapItem(int fromPostion, int toPosition) {
+        Collections.swap(allResults, fromPostion, toPosition);
+        mMyHeroAdapter.notifyItemMoved(fromPostion, toPosition);
         mRecyclerView.scrollToPosition(toPosition);
     }
 
-
-
     public void updateAppHeader(String photo, String name) {
-        if (photo != null){
+        if (photo != null) {
             Picasso.with(MainActivity.this).load(photo).fit().into(mImageView);
         }
-        mTextView.setText(name);
+        mTextView.setText(nameText);
     }
 
-  }
+    private void saveToSharedPrefs() {
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        editor.putString(IMAGE_HEADR, photo);
+        editor.putString(TEXT_HEADER, nameText);
+        editor.commit();
+    }
+
+    private void loadSharedPrefs() {
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
+        String loadPhoto = sharedPreferences.getString(IMAGE_HEADR, DEFAULT);
+        String loadNameText = sharedPreferences.getString(TEXT_HEADER, DEFAULT);
+
+        if (loadNameText.equals(DEFAULT) || loadPhoto.equals(DEFAULT)) {
+
+        } else {
+
+            if (loadPhoto != null) {
+                Picasso.with(MainActivity.this).load(loadPhoto).fit().into(mImageView);
+            }
+            mTextView.setText(loadNameText);
+        }
+    }
+
+
+}

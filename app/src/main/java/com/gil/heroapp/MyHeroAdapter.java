@@ -41,7 +41,7 @@ public class MyHeroAdapter extends RecyclerView.Adapter<MyHeroAdapter.MyHolder> 
         mContext = context;
         selectedItems = new int[myList.size()];
         initializeSeledtedItems();
-            }
+    }
 
     public class MyHolder extends RecyclerView.ViewHolder {
 
@@ -118,6 +118,7 @@ public class MyHeroAdapter extends RecyclerView.Adapter<MyHeroAdapter.MyHolder> 
         return myList.size();
 
     }
+
     private void setSelectedItem(int position) {
         for (int i = 0; i < selectedItems.length; i++) {
             if (i == position) selectedItems[i] = 1;
