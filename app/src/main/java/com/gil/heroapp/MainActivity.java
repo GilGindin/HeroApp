@@ -15,7 +15,6 @@ import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,7 +35,6 @@ public class MainActivity extends AppCompatActivity implements MyHeroAdapter.OnI
     private MyHeroAdapter mMyHeroAdapter;
     private ImageView mImageView;
     private TextView mTextView;
-    private EndPointService mEndPointService;
     private List allResults;
     private String photo;
     private String nameText;
@@ -46,13 +44,13 @@ public class MainActivity extends AppCompatActivity implements MyHeroAdapter.OnI
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.collapse_activity_main);
+
 
         initialButtons();
         createRetrofitCallback();
 
     }
-
 
     private void initialButtons() {
         mRecyclerView = findViewById(R.id.recycler_view_list_of_heroes);
@@ -65,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements MyHeroAdapter.OnI
     }
 
     private void createRetrofitCallback() {
-        mEndPointService = RetrofitInstance.getRetrofitInstance().create(EndPointService.class);
+        EndPointService mEndPointService = RetrofitInstance.getRetrofitInstance().create(EndPointService.class);
         Call<List<Item>> myCall = mEndPointService.getAllHeroes();
         myCall.enqueue(new Callback<List<Item>>() {
             @Override
