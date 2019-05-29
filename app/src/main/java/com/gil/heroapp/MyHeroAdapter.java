@@ -25,7 +25,7 @@ public class MyHeroAdapter extends RecyclerView.Adapter<MyHeroAdapter.MyHolder> 
     public interface OnItemClickListener {
         void onItemClick(int position);
 
-        void swapItem(int fromPostion, int toPosition);
+       void swapItem(int fromPostion, int toPosition);
 
         void updateAppHeader(String photo, String name);
 
@@ -92,7 +92,7 @@ public class MyHeroAdapter extends RecyclerView.Adapter<MyHeroAdapter.MyHolder> 
         Item item = myList.get(position);
         myHolder.text_view_name.setText(item.getTitle());
 
-        if (selectedItems[position] == 1) myHolder.heart_image_view.setVisibility(View.VISIBLE);
+        if (selectedItems[position] == position) myHolder.heart_image_view.setVisibility(View.VISIBLE);
         else myHolder.heart_image_view.setVisibility(View.GONE);
 
         stringArray = item.getAbilitiesObj();
@@ -121,7 +121,12 @@ public class MyHeroAdapter extends RecyclerView.Adapter<MyHeroAdapter.MyHolder> 
 
     private void setSelectedItem(int position) {
         for (int i = 0; i < selectedItems.length; i++) {
-            if (i == position) selectedItems[i] = 1;
+            if (i == position){
+                if (i == 0){
+                    selectedItems[i] = position;
+                }else
+                selectedItems[i] = position +1;
+            }
             else selectedItems[i] = 0;
         }
     }
