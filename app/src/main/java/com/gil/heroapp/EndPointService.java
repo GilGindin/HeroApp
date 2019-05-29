@@ -8,6 +8,7 @@ import retrofit2.http.GET;
 
 public interface EndPointService {
 
+    //function to make end call from the heroapp
     @GET("androidexam.json")
     Call<List<Item>> getAllHeroes();
 

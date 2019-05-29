@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 public class Item {
 
+    //data class for item object
     private int id;
     @SerializedName("title")
     private String title;

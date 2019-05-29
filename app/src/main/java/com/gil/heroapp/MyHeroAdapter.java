@@ -22,23 +22,27 @@ public class MyHeroAdapter extends RecyclerView.Adapter<MyHeroAdapter.MyHolder> 
     private ArrayList<String> stringArray = new ArrayList<>();
     private int[] selectedItems;
 
+    //interface of the item click lisener
     public interface OnItemClickListener {
         void onItemClick(int position);
 
-       void swapItem(int fromPostion, int toPosition);
+        void swapItem(int fromPostion, int toPosition);
 
         void updateAppHeader(String photo, String name);
 
     }
 
-
+    //constractur for the listener
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.mlistener = listener;
     }
 
+    //constractur for the adapter
     public MyHeroAdapter(Context context, List<Item> myList) {
         this.myList = myList;
         mContext = context;
+        //initial selecteditems list with the size of the original heroapp list
+        //that came from the api
         selectedItems = new int[myList.size()];
         initializeSeledtedItems();
     }
@@ -92,9 +96,12 @@ public class MyHeroAdapter extends RecyclerView.Adapter<MyHeroAdapter.MyHolder> 
         Item item = myList.get(position);
         myHolder.text_view_name.setText(item.getTitle());
 
-        if (selectedItems[position] == position) myHolder.heart_image_view.setVisibility(View.VISIBLE);
+        //make the position item's imageview visible and all the rest of the list invisible
+        if (selectedItems[position] == position)
+            myHolder.heart_image_view.setVisibility(View.VISIBLE);
         else myHolder.heart_image_view.setVisibility(View.GONE);
 
+        //adding the hero's list of abilities to the current textview
         stringArray = item.getAbilitiesObj();
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < stringArray.size(); i++) {
@@ -107,6 +114,7 @@ public class MyHeroAdapter extends RecyclerView.Adapter<MyHeroAdapter.MyHolder> 
             }
             myHolder.text_view_abilities.setText(builder);
         }
+        //adding the hero's image
         if (myHolder.image_view != null) {
             String photoUrl = item.getImageUrl();
             Picasso.with(mContext).load(photoUrl).into(myHolder.image_view);
@@ -119,18 +127,21 @@ public class MyHeroAdapter extends RecyclerView.Adapter<MyHeroAdapter.MyHolder> 
 
     }
 
+    //function that seperate between the clicked item to all others in list
+    //to highlight is imageview (heart imageview)
     private void setSelectedItem(int position) {
         for (int i = 0; i < selectedItems.length; i++) {
-            if (i == position){
-                if (i == 0){
+            if (i == position) {
+                if (i == 0) {
                     selectedItems[i] = position;
-                }else
-                selectedItems[i] = position +1;
-            }
-            else selectedItems[i] = 0;
+                } else
+                    selectedItems[i] = position + 1;
+            } else selectedItems[i] = 0;
         }
     }
 
+    //initial selecteditems list with all the items get from the original list
+    //that came from the heroApp api
     private void initializeSeledtedItems() {
         for (int item : selectedItems) item = 1;
     }

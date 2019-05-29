@@ -9,6 +9,7 @@ public class RetrofitInstance {
 
     private static final String BASE_URL ="https://heroapps.co.il/employee-tests/android/";
 
+    //creating a singelton instance of retrofit
     public static Retrofit getRetrofitInstance() {
 
         if (retrofit == null) {
