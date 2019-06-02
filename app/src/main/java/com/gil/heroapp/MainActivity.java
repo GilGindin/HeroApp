@@ -1,12 +1,10 @@
 package com.gil.heroapp;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,8 +17,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements MyHeroAdapter.OnI
     public static final String SHARED_PREFS = "sharedPrefs";
     public static final String IMAGE_HEADR = "imageHeader";
     public static final String TEXT_HEADER = "textHeader";
+    public static final String LIST_PREFS = "list_prefs";
     public static final String DEFAULT = "N/A";
 
     private static final String TAG = "MainActivity";
@@ -59,7 +61,9 @@ public class MainActivity extends AppCompatActivity implements MyHeroAdapter.OnI
         if (isOnline()) {
             createRetrofitCallback();
         } else {
-            startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+            loadSharedPrefs();
+            loadArrayPrefs();
+            //  startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
             Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
         }
 
@@ -70,7 +74,11 @@ public class MainActivity extends AppCompatActivity implements MyHeroAdapter.OnI
         super.onPostResume();
         if (isOnline()) {
             createRetrofitCallback();
-        } else startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+        } else {
+            Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
+            loadSharedPrefs();
+        }
+
     }
 
     @Override
@@ -78,7 +86,11 @@ public class MainActivity extends AppCompatActivity implements MyHeroAdapter.OnI
         super.onPause();
         if (isOnline()) {
             createRetrofitCallback();
-        } else startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+        } else {
+            loadSharedPrefs();
+            loadArrayPrefs();
+        }
+
     }
 
     //initial the views on MainActivity
@@ -109,7 +121,13 @@ public class MainActivity extends AppCompatActivity implements MyHeroAdapter.OnI
                     if (item.getImageUrl() != null) {
                         Picasso.with(MainActivity.this).load(item.getImageUrl()).fit().into(mImageView);
                     }
+                    saveArrayToSharedPrefs();
                     loadSharedPrefs();
+                    if (!isOnline()) {
+                        loadArrayPrefs();
+                        mMyHeroAdapter.notifyDataSetChanged();
+                        Log.d(TAG, "onResponse: ------------ notifyadpter");
+                    }
                 }
 
                 mMyHeroAdapter = new MyHeroAdapter(MainActivity.this, allResults);
@@ -148,6 +166,7 @@ public class MainActivity extends AppCompatActivity implements MyHeroAdapter.OnI
         nameText = clieckedItem.getTitle();
 
         saveToSharedPrefs();
+        saveArrayToSharedPrefs();
         updateAppHeader(photo, nameText);
         swapItem(position, 0);
     }
@@ -195,8 +214,38 @@ public class MainActivity extends AppCompatActivity implements MyHeroAdapter.OnI
         }
     }
 
+    private void saveArrayToSharedPrefs() {
+        mSharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+
+        Gson gson = new Gson();
+        String json = gson.toJson(allResults);
+        editor.putString(LIST_PREFS, json);
+        editor.commit();
+
+    }
+
+    private void loadArrayPrefs() {
+        mSharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        Gson gson = new Gson();
+
+        String json = mSharedPreferences.getString(LIST_PREFS, null);
+
+        if (allResults == null || allResults.equals(DEFAULT) || json.isEmpty()) {
+            allResults = gson.fromJson(json, new TypeToken<ArrayList<Item>>() {
+            }.getType());
+            mMyHeroAdapter = new MyHeroAdapter(MainActivity.this, allResults);
+            setAdpter();
+        } else {
+
+            mMyHeroAdapter = new MyHeroAdapter(MainActivity.this, allResults);
+            setAdpter();
+        }
+    }
+
+
     //internet connection check
-    public boolean isOnline() {
+    private boolean isOnline() {
         ConnectivityManager cm =
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
@@ -204,11 +253,10 @@ public class MainActivity extends AppCompatActivity implements MyHeroAdapter.OnI
     }
 
     //set the adapter with the recyclerview
-    public void setAdpter() {
+    private void setAdpter() {
         mRecyclerView.setAdapter(mMyHeroAdapter);
         mMyHeroAdapter.setOnItemClickListener(MainActivity.this);
         mMyHeroAdapter.notifyDataSetChanged();
-
     }
 
 }
