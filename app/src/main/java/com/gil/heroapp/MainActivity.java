@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements MyHeroAdapter.OnI
 
         initialViews();
 
+
         //checking internet connection , if needed move the user to internet settings
         if (isOnline()) {
             createRetrofitCallback();
@@ -75,8 +76,10 @@ public class MainActivity extends AppCompatActivity implements MyHeroAdapter.OnI
         if (isOnline()) {
             createRetrofitCallback();
         } else {
+            
             Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
             loadSharedPrefs();
+            loadArrayPrefs();
         }
 
     }
@@ -84,12 +87,8 @@ public class MainActivity extends AppCompatActivity implements MyHeroAdapter.OnI
     @Override
     protected void onPause() {
         super.onPause();
-        if (isOnline()) {
-            createRetrofitCallback();
-        } else {
-            loadSharedPrefs();
-            loadArrayPrefs();
-        }
+        saveArrayToSharedPrefs();
+        saveToSharedPrefs();
 
     }
 
